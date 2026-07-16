@@ -1,0 +1,23 @@
+Linux Assignment
+==========================================
+1 Your filesystem is 100% full. What should you do?
+
+2 You copied a script to another server, but it says "Permission denied." What could be wrong?
+
+3 A process is consuming 100% CPU. How would you identify and stop it?
+
+4 You need to find a file named config.txt anywhere on the server.
+
+5 A colleague changed file permissions accidentally. How do you verify them?
+
+6 You need to find which user owns a file.
+
+7 A command is taking too long. How do you run it in the background?
+
+8 You cannot write to a file even though it exists. What do you check?
+
+9 You need to see the last 20 lines of a log file that is continuously updating.
+
+10 A command you ran yesterday needs to be executed again. How do you find it?
+
+Send the solutions to intelliqit.trainings@gmail.com	
