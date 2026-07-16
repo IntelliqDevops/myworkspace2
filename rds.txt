@@ -1,0 +1,96 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+
+  required_version = ">= 1.5.0"
+}
+
+
+
+provider "aws" {
+  region     = "us-east-1"
+  access_key = var.access_keys
+  secret_key =  var.secret_keys
+}
+# Get the default VPC
+data "aws_vpc" "default" {
+  default = true
+}
+
+# Get all default subnets in the default VPC
+data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+}
+
+# Create a DB subnet group
+resource "aws_db_subnet_group" "default" {
+  name       = "default-db-subnet-group"
+  subnet_ids = data.aws_subnets.default.ids
+
+  tags = {
+    Name = "Default DB Subnet Group"
+  }
+}
+
+# Security Group for MySQL
+resource "aws_security_group" "rds_sg" {
+  name        = "rds-mysql-sg"
+  description = "Allow MySQL access"
+  vpc_id      = data.aws_vpc.default.id
+
+  ingress {
+    description = "MySQL"
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+
+    # Replace with your EC2 Security Group ID for better security
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "rds-mysql-sg"
+  }
+}
+
+# MySQL RDS Instance
+resource "aws_db_instance" "mysql" {
+  identifier             = "mysql-rds-demo"
+  engine                 = "mysql"
+  engine_version         = "8.0"
+  instance_class         = "db.t3.micro"
+  allocated_storage      = 20
+  storage_type           = "gp3"
+
+  db_name                = "mydatabase"
+  username               = "admin"
+  password               = "ChangeMe123!"
+
+  port                   = 3306
+
+  db_subnet_group_name   = aws_db_subnet_group.default.name
+  vpc_security_group_ids = [aws_security_group.rds_sg.id]
+
+  publicly_accessible    = false
+
+  skip_final_snapshot    = true
+  deletion_protection    = false
+
+  tags = {
+    Name = "mysql-rds-demo"
+  }
+}
